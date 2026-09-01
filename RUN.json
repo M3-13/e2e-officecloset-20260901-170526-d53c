@@ -1,5 +1,6 @@
 {
   "runcontract": 1,
+  "public_paths": ["/api/auth/register", "/api/auth/login"],
   "services": [
     {
       "name": "api",
@@ -7,15 +8,7 @@
       "stack": "python",
       "kind": "server",
       "install": [
-        [
-          "${python}",
-          "-m",
-          "pip",
-          "install",
-          "-q",
-          "-r",
-          "requirements.txt"
-        ]
+        ["${python}", "-m", "pip", "install", "-q", "-r", "requirements.txt"]
       ],
       "start": [
         "${python}",
@@ -27,29 +20,13 @@
       ],
       "port": 8000,
       "port_env": "PORT",
-      "health": {
-        "path": "/api/health",
-        "expect_status": [
-          200
-        ]
-      },
+      "health": { "path": "/api/health", "expect_status": [200] },
       "env": {
-        "DATABASE_URL": {
-          "dev": "sqlite:///./wardrobe.db"
-        },
-        "SECRET_KEY": {
-          "generate": "hex",
-          "bytes": 32
-        },
-        "UPLOAD_DIR": {
-          "dev": "./uploads"
-        },
-        "FRONTEND_ORIGIN": {
-          "dev": "http://localhost:5173"
-        },
-        "MAX_UPLOAD_MB": {
-          "dev": "5"
-        }
+        "DATABASE_URL": { "dev": "sqlite:///./wardrobe.db" },
+        "SECRET_KEY": { "generate": "hex", "bytes": 32 },
+        "UPLOAD_DIR": { "dev": "./uploads" },
+        "FRONTEND_ORIGIN": { "dev": "http://localhost:5173" },
+        "MAX_UPLOAD_MB": { "dev": "5" }
       }
     },
     {
@@ -57,81 +34,11 @@
       "dir": "frontend",
       "stack": "web-vite",
       "kind": "server",
-      "install": [
-        [
-          "npm",
-          "ci"
-        ]
-      ],
-      "start": [
-        "npm",
-        "run",
-        "dev",
-        "--",
-        "--port",
-        "${PORT}"
-      ],
+      "install": [["npm", "ci"]],
+      "start": ["npm", "run", "dev", "--", "--port", "${PORT}"],
       "port": 5173,
       "port_env": "PORT",
-      "health": {
-        "path": "/",
-        "expect_status": [
-          200
-        ]
-      }
-    },
-    {
-      "name": "backend",
-      "dir": "backend",
-      "stack": "python",
-      "kind": "server",
-      "install": [
-        [
-          "${python}",
-          "-m",
-          "pip",
-          "install",
-          "-q",
-          "-r",
-          "requirements.txt"
-        ]
-      ],
-      "start": [
-        "${python}",
-        "-m",
-        "uvicorn",
-        "app.main:app",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "${PORT}"
-      ],
-      "port": 8000,
-      "port_env": "PORT",
-      "health": {
-        "path": "/api/health",
-        "expect_status": [
-          200
-        ]
-      },
-      "env": {
-        "SECRET_KEY": {
-          "generate": "hex",
-          "bytes": 32
-        },
-        "DATABASE_URL": {
-          "dev": "sqlite:///./wardrobe.db"
-        },
-        "UPLOAD_DIR": {
-          "dev": "./uploads"
-        },
-        "FRONTEND_ORIGIN": {
-          "dev": "http://localhost:5173"
-        },
-        "MAX_UPLOAD_MB": {
-          "dev": "5"
-        }
-      }
+      "health": { "path": "/", "expect_status": [200] }
     }
   ]
 }
