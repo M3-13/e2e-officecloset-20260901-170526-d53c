@@ -60,6 +60,20 @@ Das Frontend ruft das Backend über relative `/api/*`-Pfade auf (Vite-Proxy → 
 | `FRONTEND_ORIGIN` | `http://localhost:5173`       | Erlaubte CORS-Origin des Frontends  |
 | `MAX_UPLOAD_MB`   | `5`                           | Maximale Bild-Upload-Größe in MB    |
 
+### SECRET_KEY lokal erzeugen
+
+Der JWT-Signierschlüssel wird nicht im Repo abgelegt und muss lokal gesetzt
+werden. Erzeuge ihn und exportiere ihn vor dem Start (oder trage ihn in eine
+`.env` ein — Vorlage siehe `backend/.env.example`):
+
+```bash
+# Linux/macOS
+export SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex(32))")
+
+# Windows (PowerShell)
+$env:SECRET_KEY = python -c "import secrets; print(secrets.token_hex(32))"
+```
+
 ## API-Endpunkte
 
 Alle Fehler antworten als `{"detail": "<meldung>"}`. Bis auf `/api/health`,

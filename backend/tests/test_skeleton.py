@@ -2,8 +2,12 @@
 
 These assert only what is true on both sides of the feature gap: the app boots,
 the health route answers, and the declared routes/helpers are registered with
-the agreed paths and signatures. They never assert the temporary 501 answer a
-stub returns today, since that must change the moment its owning ticket merges.
+the agreed paths and signatures. Route registration is checked against the
+OpenAPI schema (not ``app.routes``), because newer FastAPI/Starlette stores
+included routers as ``_IncludedRouter`` objects that do not flatten into
+``app.routes`` — while the OpenAPI schema always lists the real API surface.
+They never assert the temporary 501 answer a stub returns today, since that
+must change the moment its owning ticket merges.
 """
 
 import inspect
@@ -34,17 +38,6 @@ EXPECTED_ROUTES = {
 }
 
 
-def _registered_routes() -> set[tuple[str, str]]:
-    result: set[tuple[str, str]] = set()
-    for route in app.routes:
-        methods = getattr(route, "methods", None)
-        path = getattr(route, "path", None)
-        if methods and path:
-            for method in methods:
-                result.add((path, method))
-    return result
-
-
 def test_app_imports() -> None:
     assert app is not None
 
@@ -57,9 +50,12 @@ def test_health_endpoint() -> None:
 
 
 def test_stub_routes_are_registered() -> None:
-    registered = _registered_routes()
-    for expected in EXPECTED_ROUTES:
-        assert expected in registered, f"route not registered: {expected}"
+    with TestClient(app) as client:
+        schema = client.get("/openapi.json").json()
+    paths = schema["paths"]
+    for path, method in EXPECTED_ROUTES:
+        assert path in paths, f"path not in OpenAPI schema: {path}"
+        assert method.lower() in paths[path], f"method not in OpenAPI schema: {method} {path}"
 
 
 def test_get_current_user_signature() -> None:
