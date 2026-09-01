@@ -1,6 +1,5 @@
 {
   "runcontract": 1,
-  "public_paths": ["/api/auth/register", "/api/auth/login"],
   "services": [
     {
       "name": "api",
